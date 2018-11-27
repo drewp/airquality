@@ -11,6 +11,12 @@
 #include <SPI.h>
 #include <Wire.h>
 
+#include "esphomelib/application.h"
+
+
+using namespace esphomelib;
+
+
 Adafruit_CCS811 ccs;
 
 Adafruit_BME280 bme;
@@ -21,6 +27,20 @@ PMS pms(Serial1);
 PMS::DATA data;
 
 void setup() {
+  App.set_name("test");
+  App.init_log();
+
+  App.init_wifi("YOUR_SSID", "YOUR_PASSWORD");
+  App.init_ota()->start_safe_mode();
+  App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
+
+  // simple example:
+  //auto *custom_sensor = new BMP180Sensor("My BMP180 sensor", 5000);
+  //App.register_component(custom_sensor);
+  //App.register_sensor(custom_sensor);
+
+  App.setup();
+
   Serial.begin(115200);
 
   bool status;
@@ -42,9 +62,12 @@ void setup() {
   // GPIO15/TXD2 no 17 = pms rx (pin 4)
   Serial1.begin(9600, SERIAL_8N1, /*rxPin=*/16,/*txPin=*/17);
 
+
 }
 
 void loop() {
+  App.loop();
+
   if (pms.readUntil(data, 50))
   {
     Serial.print("PM 1.0 (ug/m3): ");
