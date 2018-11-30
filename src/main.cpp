@@ -1,116 +1,40 @@
-#include <stdio.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "driver/gpio.h"
-#include "sdkconfig.h"
-
-#include "Adafruit_BME280.h"
-#include "Adafruit_CCS811.h"
-#include "PMS.h"
-#include <Adafruit_Sensor.h>
-#include <SPI.h>
-#include <Wire.h>
-
+// Auto generated code by esphomeyaml
 #include "esphomelib/application.h"
-
 
 using namespace esphomelib;
 
-
-Adafruit_CCS811 ccs;
-
-Adafruit_BME280 bme;
-
-unsigned long delayTime;
-
-PMS pms(Serial1);
-PMS::DATA data;
-
 void setup() {
-  App.set_name("test");
-  App.init_log();
-
-  App.init_wifi("YOUR_SSID", "YOUR_PASSWORD");
-  App.init_ota()->start_safe_mode();
-  App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
-
-  // simple example:
-  //auto *custom_sensor = new BMP180Sensor("My BMP180 sensor", 5000);
-  //App.register_component(custom_sensor);
-  //App.register_sensor(custom_sensor);
-
+  // ===== DO NOT EDIT ANYTHING BELOW THIS LINE =====
+  // ========== AUTO GENERATED CODE BEGIN ===========
+  App.set_name("air");
+  App.set_compilation_datetime(__DATE__ ", " __TIME__);
+  App.init_log(115200);
+  ::WiFiComponent *_wificomponent = App.init_wifi();
+  _wificomponent->set_sta(::WiFiAp{
+      .ssid = "bigasterisk5",
+      .password = "dancedance",
+      .channel = -1,
+  });
+  ::OTAComponent *_otacomponent = App.init_ota();
+  _otacomponent->start_safe_mode();
+  App.init_mqtt("10.2.0.1", 1883, "", "");
+  App.init_i2c(21, 22, false);
+  ::UARTComponent *_uartcomponent = App.init_uart(17, 16, 9600);
+  ::Application::MakeBME280Sensor _application_makebme280sensor = App.make_bme280_sensor("BME280 Temperature", "BME280 Pressure", "BME280 Humidity", 0x76, 15000);
+  _application_makebme280sensor.bme280->set_temperature_oversampling(sensor::BME280_OVERSAMPLING_16X);
+  sensor::PMSX003Component *sensor_pmsx003component = App.make_pmsx003(_uartcomponent, sensor::PMSX003_TYPE_5003);
+  sensor::PMSX003Sensor *sensor_pmsx003sensor = sensor_pmsx003component->make_pm_1_0_sensor("Particulate Matter <1.0\302\265m Concentration");
+  App.register_sensor(sensor_pmsx003sensor);
+  sensor::PMSX003Sensor *sensor_pmsx003sensor_2 = sensor_pmsx003component->make_pm_2_5_sensor("Particulate Matter <2.5\302\265m Concentration");
+  App.register_sensor(sensor_pmsx003sensor_2);
+  sensor::PMSX003Sensor *sensor_pmsx003sensor_3 = sensor_pmsx003component->make_pm_10_0_sensor("Particulate Matter <10.0\302\265m Concentration");
+  App.register_sensor(sensor_pmsx003sensor_3);
+  // =========== AUTO GENERATED CODE END ============
+  // ========= YOU CAN EDIT AFTER THIS LINE =========
   App.setup();
-
-  Serial.begin(115200);
-
-  bool status;
-
-  status = bme.begin(0x76);
-  if (!status) {
-    Serial.println("Could not find a valid BME280 sensor, check wiring!");
-    while (1);
-  }
-
-  Serial.println("CCS811 test 5a");
-
-  if (!ccs.begin(0x5a)) {
-    Serial.println("Failed to start sensor! Please check your wiring.");
-    while (1);
-  }
-  ccs.setDriveMode(CCS811_DRIVE_MODE_10SEC);
-  // GPIO13/RXD2 no 16 = pms tx (pin 5)
-  // GPIO15/TXD2 no 17 = pms rx (pin 4)
-  Serial1.begin(9600, SERIAL_8N1, /*rxPin=*/16,/*txPin=*/17);
-
-
 }
 
 void loop() {
   App.loop();
-
-  if (pms.readUntil(data, 50))
-  {
-    Serial.print("PM 1.0 (ug/m3): ");
-    Serial.println(data.PM_AE_UG_1_0);
-
-    Serial.print("PM 2.5 (ug/m3): ");
-    Serial.println(data.PM_AE_UG_2_5);
-
-    Serial.print("PM 10.0 (ug/m3): ");
-    Serial.println(data.PM_AE_UG_10_0);
-
-    Serial.println();
-  }
-  Serial.print("{\"temperature_c\": ");
-  float tmpr = bme.readTemperature();
-  Serial.print(tmpr);
-  Serial.print(",");
-
-  Serial.print("\"pressure_hpa\": ");
-
-  Serial.print(bme.readPressure() / 100.0F);
-
-
-  Serial.print(",\"humidity\": ");
-  uint8_t humid = bme.readHumidity();
-  Serial.print(humid);
-  Serial.print(",");
-
-  if (ccs.available()) {
-    ccs.setEnvironmentalData(humid, tmpr);
-    if (!ccs.readData()) {
-      Serial.print("\"CO2_ppm\": ");
-      Serial.print(ccs.geteCO2());
-      Serial.print(",\"TVOC_ppb\": ");
-      Serial.print(ccs.getTVOC());
-
-    }
-    else {
-      Serial.println("ERROR!");
-      while (1);
-    }
-  }
-  Serial.println("}");
-  delay(1000);
+  delay(16);
 }
-

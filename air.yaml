@@ -1,0 +1,53 @@
+esphomeyaml:
+  name: air
+  platform: ESP32
+  board: lolin32
+  build_path: .
+  arduino_version: espressif32@>=1.4.0
+  esphomelib_version:
+    repository: https://github.com/drewp/esphomelib.git
+    tag: dev
+
+i2c:
+  sda: 21
+  scl: 22
+  scan: False
+
+uart:
+  rx_pin: 16
+  tx_pin: 17
+  baud_rate: 9600
+
+sensor:
+  - platform: bme280
+    temperature:
+      name: "BME280 Temperature"
+      oversampling: 16x
+    pressure:
+      name: "BME280 Pressure"
+    humidity:
+      name: "BME280 Humidity"
+    address: 0x76
+    update_interval: 15s
+  - platform: pmsx003
+    type: PMS5003
+    pm_1_0:
+      name: "Particulate Matter <1.0µm Concentration"
+    pm_2_5:
+      name: "Particulate Matter <2.5µm Concentration"
+    pm_10_0:
+      name: "Particulate Matter <10.0µm Concentration"
+wifi:
+  ssid: ''
+  password: ''
+
+mqtt:
+  broker: ''
+  port: 1883
+  username: ''
+  password: ''
+
+logger:
+  baud_rate: 115200
+
+ota:
